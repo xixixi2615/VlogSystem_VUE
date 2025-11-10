@@ -1,9 +1,8 @@
 <template>
     <div>
-    <!-- header section start -->
-    <!--纵栏-->
     <div class="header_section">
          <div class="header_main">
+            <!--纵栏-->
             <div class="mobile_menu">
                <nav class="navbar navbar-expand-lg navbar-light bg-light">
                   <div class="logo_mobile"><router-link to="/"><img src="../images/logo.png"></router-link></div>
@@ -16,63 +15,41 @@
                            <router-link to="/" class="nav-link">首页</router-link>
                         </li>
                         <li class="nav-item">
-                           <router-link to="/about" class="nav-link">关于景区</router-link>
-                        </li>
-                        <li class="nav-item">
-                           <router-link to="/services" class="nav-link">实时录制</router-link>
+                           <router-link to="/about" class="nav-link">景区风景</router-link>
                         </li>
                         <li class="nav-item">
                            <router-link to="/vlog" class="nav-link">旅行vlog</router-link>
                         </li>
                         <li class="nav-item">
-                           <router-link to="/contact" class="nav-link">联系我们</router-link>
+                           <ruter-link to="/contact" class="nav-link">联系我们</ruter-link>
                         </li>
                      </ul>
                   </div>
                </nav>
             </div>
-             <!--横栏-->
+
+            <!-- 横栏 -->
             <div class="container-fluid">
                <div class="logo"><router-link to="/"><img src="../images/logo.png"></router-link></div>
                <div class="menu_main">
                   <ul>
                      <li class="active"><router-link to="/" class="nav-link">首页</router-link></li>
-                     <li><router-link to="/about" class="nav-link">关于景区</router-link></li>
-                     <li><router-link to="/services" class="nav-link">实时录制</router-link></li>
+                     <li><router-link to="/about" class="nav-link">景区风景</router-link></li>
                      <li><router-link to="/vlog" class="nav-link">旅行vlog</router-link></li>
                      <li><router-link to="/contact" class="nav-link">联系我们</router-link></li>
                   </ul>
                </div>
             </div>
          </div>
-         <!-- banner section start -->
-         <div class="banner_section layout_padding">
-            <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
-               <div class="carousel-inner">
-                  <div class="carousel-item active">
-                     <div class="container">
-                        <h1 class="banner_taital">Travel with U</h1>
-                        <p class="banner_text">Get Your Own Travel Vlog.</p>
-                     </div>
-                  </div>
-                  <div class="carousel-item">
-                     <div class="container">
-                        <h1 class="banner_taital">沿途邮你</h1>
-                        <p class="banner_text">获取专属于你的旅行VLOG。</p>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-         <!-- banner section end -->
       </div>
-      <!-- services section end -->
-      <!-- about section start -->
+
+      <!-- 旅行VLOG -->
       <div class="about_section layout_padding">
          <div class="container-fluid">
             <div class="row">
+               <!-- 左侧内容 -->
                <div class="col-md-6">
-                  <div class="about_taital_main">
+                  <div class="about_taital_main" style="padding-right: 30px;">
  
                       <h1 class="about_taital">上传人脸图像</h1>
                       <p class="about_text">上传人脸图像，您将得到专属于您的景区旅行视频。</p>
@@ -145,7 +122,7 @@
                   </div>
                </div>
  
-                
+               <!-- 右侧内容 --> 
                <div class="col-md-6 padding_right_0">
                    <div>
                       <!--图片-->
@@ -158,59 +135,134 @@
                       <!-- vlog预览 -->
                      <div v-if="videoUrl" class="about_taital_main">
                         <h1 class="about_taital">旅行VLOG预览</h1>
-                        <p class="about_text">上传或录制人像视频，您将得到专属于您的景区旅行视频。</p>
+                        <p class="about_text">预览版本为带水印版本，付费后可下载高清无水印版本。</p>
 
-                        <!--下载vlog-->
-                        <p class="about_text">
-                        <p><el-button type="success" @click="downloadVideo" round size="large" color="#2b2278" style="width: 300px;">下载视频</el-button></p>
-                        <video controls :src="videoUrl" width="600"></video>
-                        </p>                          
-                     </div>
-                                                                  
+                        <div style="margin-top: 30px;">
+                          <!-- 付费前的下载 -->
+                          <div v-if="!isPaid" class="payment-section">
+                             <p class="about_text">
+                                <strong>高清无水印版本下载</strong><br>
+                                价格：￥{{ paymentAmount }}
+                             </p>
+                             <p>
+                                <el-button type="primary" @click="showPaymentDialog = true" round size="large" color="#2b2278" class="payment-btn">
+                                   付费下载无水印版本
+                                </el-button>
+                             </p>
+                          </div>
+
+                          <!-- 付费后的下载 -->
+                          <div v-if="isPaid" class="paid-download-section">
+                             <p class="about_text" style="margin-bottom: 20px;">
+                                <span style="background-color: white; border: 2px solid #2b2278; color: #2b2278; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 16px; display: inline-block;">已付费 ✓</span>
+                             </p>
+                             <p>
+                                <el-button type="primary" @click="downloadVideo" round size="large" color="#2b2278" class="payment-btn">
+                                   下载高清无水印版本
+                                </el-button>
+                             </p>
+                          </div>
+                        </div>
+
+                        <!-- 视频预览 -->
+                        <div class="video-preview" style="margin-top: 25px;">
+                           <video controls :src="videoUrl" style="width: 100%; max-width: 100%; height: auto;"></video>
+                           <p class="video-watermark-notice">* 当前为带水印预览版本</p>
+                        </div>                      
+                     </div>                                               
                    </div>
                </div>
+
             </div>
          </div>
-      </div>
-      <!-- header section end -->
-      
-      <!-- blog section start -->
-      <div class="blog_section layout_padding">
-         <div class="container">
-            <h1 class="blog_taital">旅行VLOG</h1>
-            <p class="blog_text">您可以获取为您拍摄的专属于您的旅行vlog</p>
-            <div class="play_icon_main">
-               <div class="play_icon"><router-link to="/vlog"><img src="../images/play-icon.png"></router-link></div>
+      </div>     
+
+      <!-- 付费对话框 -->
+      <el-dialog 
+         v-model="showPaymentDialog" 
+         width="600px" 
+         center
+         :close-on-click-modal="false"
+         class="payment-dialog-wrapper">
+         <div class="payment-dialog">
+            <div class="payment-header">
+               <div class="payment-icon">
+                  <i class="fa fa-video-camera"></i>
+               </div>
+               <h2>高清无水印版本</h2>
+               <div class="price-tag">￥{{ paymentAmount }}</div>
+            </div>
+
+            <div class="payment-features">
+               <h4>付费版本特色</h4>
+               <div class="features-grid">
+                  <div class="feature-item">
+                     <i class="fa fa-hd-video"></i>
+                     <span>1080P高清画质</span>
+                  </div>
+                  <div class="feature-item">
+                     <i class="fa fa-eye-slash"></i>
+                     <span>无水印版本</span>
+                  </div>
+                  <div class="feature-item">
+                     <i class="fa fa-music"></i>
+                     <span>更好的音频质量</span>
+                  </div>
+                  <div class="feature-item">
+                     <i class="fa fa-download"></i>
+                     <span>永久下载权限</span>
+                  </div>
+               </div>
+            </div>
+            
+            <div class="payment-methods">
+               <h4>选择支付方式</h4>
+               <el-radio-group v-model="selectedPaymentMethod" class="payment-options-horizontal">
+                  <el-radio label="alipay" class="payment-radio-horizontal">
+                     支付宝
+                  </el-radio>
+                  <el-radio label="wechat" class="payment-radio-horizontal">
+                     微信支付
+                  </el-radio>
+                  <el-radio label="card" class="payment-radio-horizontal">
+                     银行卡
+                  </el-radio>
+               </el-radio-group>
             </div>
          </div>
-      </div>
-      <!-- blog section end -->
+         
+         <template #footer>
+            <div class="payment-footer">
+               <el-button @click="showPaymentDialog = false" class="cancel-btn">
+                  <i class="fa fa-times"></i>
+                  取消
+               </el-button>
+               <el-button 
+                  type="primary" 
+                  @click="processPayment" 
+                  :loading="paymentProcessing" 
+                  class="pay-btn"
+                  color="#2b2278">
+                  <i class="fa fa-credit-card" v-if="!paymentProcessing"></i>
+                  {{ paymentProcessing ? '支付处理中...' : `立即支付 ￥${paymentAmount}` }}
+               </el-button>
+            </div>
+         </template>
+      </el-dialog>
      
-      <!-- footer section start -->
+      <!-- 尾部 -->
       <div class="footer_section layout_padding">
          <div class="container">
-            <div class="input_btn_main">
-               <input type="text" class="mail_text" placeholder="输入您的邮箱" name="Enter your email">
-               <div class="subscribe_bt"><router-link to="/a">提交</router-link></div>
-            </div>
             <div class="location_main">
                <div class="call_text"><img src="../images/call-icon.png"></div>
                <div class="call_text"><router-link to="/a">电话：+86 123 1234 1234</router-link></div>
                <div class="call_text"><img src="../images/mail-icon.png"></div>
                <div class="call_text"><router-link to="/a">邮箱：123 123 123@.com</router-link></div>
             </div>
-            <div class="social_icon">
-               <ul>
-                  <li><a href="#"><img src="../images/fb-icon.png"></a></li>
-                  <li><a href="#"><img src="../images/twitter-icon.png"></a></li>
-                  <li><a href="#"><img src="../images/linkedin-icon.png"></a></li>
-                  <li><a href="#"><img src="../images/instagram-icon.png"></a></li>
-               </ul>
-            </div>
          </div>
       </div>
-      <!-- footer section end -->
-      <!-- copyright section start -->
+
+      <!-- 版权所有 -->
       <div class="copyright_section">
          <div class="container">
             <p class="copyright_text">版权所有 &copy; <a target="_blank" href="#">智旅VLOG</a></p>
@@ -254,6 +306,13 @@
         taskStatus: null, // 任务状态
         statusPolling: null, // 轮询状态ID
         progeress: 0, // 进度(0-100)
+        
+        // 付费下载相关
+        isPaid: false, // 是否已付费
+        showPaymentDialog: false, // 是否显示付费对话框
+        paymentAmount: 29.99, // 付费金额
+        selectedPaymentMethod: 'alipay', // 选择的支付方式
+        paymentProcessing: false, // 支付处理中状态
       };
     },
     
@@ -462,7 +521,7 @@
     generateUserId() {
       const userId = 'user_' + Math.random().toString(36).substr(2, 9); // 生成简单随机 ID
       this.userId = userId;
-      // 持久化到 localStorage
+      // ID持久化到 localStorage
       try {
         localStorage.setItem('userId', userId);
         console.log('userId 已保存到 localStorage:', userId);
@@ -549,8 +608,53 @@
             return;
         }
         
-        //window.open(`${BASE_URL}/downloadVideo`); // 下载合成视频
-        window.open(`${BASE_URL}/downloadVideo?userId=${userId}`); // 下载合成视频，传递 userId 参数
+        // 验证是否已付费
+        if (!this.isPaid) {
+            this.$message.warning('请先完成付费才能下载高清无水印版本');
+            this.showPaymentDialog = true;
+            return;
+        }
+        
+        // 付费后下载无水印版本
+        window.open(`${BASE_URL}/downloadVideo?userId=${userId}`);
+        this.$message.success('开始下载高清无水印版本');
+    },
+
+    // 处理付费流程
+    async processPayment() {
+      this.paymentProcessing = true;
+      
+      try {
+        // 模拟支付处理时间
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // 模拟支付成功（在实际项目中这里应该调用真实的支付接口）
+        const paymentSuccess = Math.random() > 0.1; // 90%成功率用于测试
+        
+        if (paymentSuccess) {
+          this.isPaid = true;
+          this.showPaymentDialog = false;
+          
+          // 保存付费状态到本地存储
+          const userId = this.getUserId();
+          try {
+            localStorage.setItem(`paid_${userId}`, 'true');
+            localStorage.setItem(`paymentMethod_${userId}`, this.selectedPaymentMethod);
+            localStorage.setItem(`paymentTime_${userId}`, new Date().toISOString());
+          } catch (e) {
+            console.warn('保存付费状态失败:', e);
+          }
+          
+          this.$message.success('付费成功！现在可以下载高清无水印版本了');
+        } else {
+          this.$message.error('支付失败，请重试');
+        }
+      } catch (error) {
+        console.error('支付处理错误:', error);
+        this.$message.error('支付处理出错，请重试');
+      } finally {
+        this.paymentProcessing = false;
+      }
     },
 
     // 将webm格式转换为mp4格式
@@ -561,14 +665,22 @@
         });
     },
 },
-    // 页面挂载时自动恢复 userId 并设置 imageRemoteUrl
+    // 页面挂载时自动恢复 userId、imageRemoteUrl、videoUrl 和付费状态
     mounted() {
       try {
         const stored = localStorage.getItem('userId');
         if (stored) {
           this.userId = stored;
           this.imageRemoteUrl = `${BASE_URL}/facepics/${this.userId}.jpg`;
-          console.log('mounted: 恢复 userId，并设置 imageRemoteUrl:', this.userId, this.imageRemoteUrl);
+          console.log('mounted: 恢复 userId:', this.userId);
+          console.log('mounted: 恢复 imageRemoteUrl:', this.imageRemoteUrl);
+          
+          // 恢复付费状态
+          const paidStatus = localStorage.getItem(`paid_${this.userId}`);
+          if (paidStatus === 'true') {
+            this.isPaid = true;
+            console.log('恢复付费状态: 已付费');
+          }
         }
       } catch (e) {
         console.warn('mounted: 读取 localStorage 失败', e);
@@ -631,8 +743,30 @@ computed: {
      align-items: center; /* 水平居中 */
    }
    .video-preview video {
-     max-width: 70%; /* 确保视频不会超出容器 */
-     height: auto; /* 保持视频比例 */
+     width: 100% !important; /* 自适应宽度 */
+     max-width: 100% !important; /* 最大宽度 */
+     height: auto !important; /* 保持视频比例 */
+     border-radius: 8px; /* 圆角 */
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+   }
+
+   /* 右侧列内边距优化 */
+   .col-md-6.padding_right_0 {
+     padding-right: 20px !important; /* 恢复右侧内边距 */
+     padding-left: 30px !important; /* 增加左侧内边距，与左栏拉开距离 */
+   }
+
+   /* 左侧列内边距优化 */
+   .col-md-6:not(.padding_right_0) {
+     padding-left: 20px !important; /* 左侧与浏览器边沿的距离 */
+     padding-right: 15px !important; /* 与右栏的距离 */
+   }
+
+   /* 付费模块容器优化 */
+   .about_taital_main {
+     padding: 0 15px; /* 左右内边距 */
+     margin: 0 auto; /* 居中 */
+     max-width: 100%; /* 最大宽度 */
    }
    /* 录制预览 */
    .preview-container {
@@ -641,5 +775,411 @@ computed: {
    .preview-container video {
      border: 1px solid #dcdfe6;
      border-radius: 4px;
+   }
+
+   /* 付费下载相关样式 */
+   .payment-section {
+     margin: 20px 10px; /* 左右增加间距 */
+     padding: 20px;
+     border: 2px dashed #2b2278;
+     border-radius: 8px;
+     background-color: #f5f5f5;
+     text-align: center;
+     clear: both;
+     position: relative;
+     z-index: 1;
+     max-width: calc(100% - 20px); /* 确保不会超出容器 */
+   }
+
+   .paid-download-section {
+     margin: 20px 10px; /* 左右增加间距 */
+     padding: 20px;
+     border: 2px dashed #2b2278; /* 改为虚线边框 */
+     border-radius: 8px;
+     background-color: #f5f5f5;
+     text-align: center;
+     clear: both;
+     position: relative;
+     z-index: 1;
+     max-width: calc(100% - 20px); /* 确保不会超出容器 */
+   }
+
+   /* 付费按钮响应式样式 */
+   .payment-btn {
+     width: 100%;
+     max-width: 280px;
+     min-width: 200px;
+   }
+
+   /* 付费对话框样式优化 */
+   .payment-dialog-wrapper {
+     border-radius: 15px !important;
+   }
+
+   .payment-dialog-wrapper :deep(.el-dialog) {
+     border-radius: 15px;
+     box-shadow: 0 8px 32px rgba(43, 34, 120, 0.2);
+     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+   }
+
+   .payment-dialog-wrapper :deep(.el-dialog__header) {
+     background: linear-gradient(135deg, #2b2278 0%, #3d2e8a 100%);
+     color: white;
+     border-radius: 15px 15px 0 0;
+     padding: 25px;
+     text-align: center;
+   }
+
+   .payment-dialog-wrapper :deep(.el-dialog__title) {
+     font-size: 20px;
+     font-weight: 600;
+     color: white;
+     text-align: center;
+     width: 100%;
+     display: block;
+   }
+
+   .payment-dialog-wrapper :deep(.el-dialog__body) {
+     padding: 30px 40px;
+   }
+
+   .payment-header {
+     text-align: center;
+     margin-bottom: 30px;
+     padding-bottom: 20px;
+     border-bottom: 2px solid #f0f2f5;
+   }
+
+   .payment-icon {
+     display: inline-block;
+     width: 60px;
+     height: 60px;
+     background: linear-gradient(135deg, #2b2278 0%, #3d2e8a 100%);
+     border-radius: 50%;
+     line-height: 60px;
+     text-align: center;
+     color: white;
+     font-size: 24px;
+     margin-bottom: 15px;
+     box-shadow: 0 4px 15px rgba(43, 34, 120, 0.3);
+   }
+
+   .payment-header h2 {
+     color: #2b2278;
+     font-size: 22px;
+     font-weight: 600;
+     margin: 10px 0;
+   }
+
+   .price-tag {
+     display: inline-block;
+     background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+     color: white;
+     padding: 8px 20px;
+     border-radius: 20px;
+     font-size: 18px;
+     font-weight: 600;
+     box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
+   }
+
+   .payment-features {
+     margin-bottom: 30px;
+   }
+
+   .payment-features h4 {
+     color: #2b2278;
+     font-size: 16px;
+     font-weight: 600;
+     margin-bottom: 20px;
+     text-align: center;
+   }
+
+   .features-grid {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 15px;
+     margin-bottom: 10px;
+   }
+
+   .feature-item {
+     display: flex;
+     align-items: center;
+     padding: 12px 15px;
+     background: #f8f9fa;
+     border-radius: 8px;
+     border-left: 4px solid #2b2278;
+     transition: all 0.3s ease;
+   }
+
+   .feature-item:hover {
+     background: #e9ecef;
+     transform: translateY(-2px);
+     box-shadow: 0 4px 12px rgba(43, 34, 120, 0.1);
+   }
+
+   .feature-item i {
+     color: #2b2278;
+     font-size: 16px;
+     margin-right: 10px;
+     min-width: 20px;
+     text-align: center;
+   }
+
+   .feature-item span {
+     color: #333;
+     font-size: 14px;
+     font-weight: 500;
+   }
+
+   .payment-methods {
+     margin-bottom: 20px;
+   }
+
+   .payment-methods h4 {
+     color: #2b2278;
+     font-size: 16px;
+     font-weight: 600;
+     margin-bottom: 20px;
+     text-align: center;
+   }
+
+   .payment-options {
+     display: flex;
+     flex-direction: column;
+     gap: 12px;
+   }
+
+   /* 横向支付方式样式 */
+   .payment-options-horizontal {
+     display: flex;
+     justify-content: center;
+     gap: 30px;
+     flex-wrap: wrap;
+   }
+
+   .payment-radio-horizontal {
+     margin-right: 0 !important;
+     font-size: 16px;
+     font-weight: 500;
+   }
+
+   .payment-radio-horizontal :deep(.el-radio__input.is-checked .el-radio__inner) {
+     background-color: #2b2278;
+     border-color: #2b2278;
+   }
+
+   .payment-radio-horizontal :deep(.el-radio__label) {
+     color: #2b2278;
+     font-weight: 500;
+     font-size: 16px;
+   }
+
+   .payment-radio-horizontal :deep(.el-radio__input.is-checked + .el-radio__label) {
+     color: #2b2278;
+     font-weight: 600;
+   }
+
+   .payment-radio {
+     margin-right: 0 !important;
+   }
+
+   .payment-radio :deep(.el-radio__input) {
+     margin-right: 15px;
+   }
+
+   .payment-radio :deep(.el-radio__input.is-checked .el-radio__inner) {
+     background-color: #2b2278;
+     border-color: #2b2278;
+   }
+
+   .payment-method-item {
+     display: flex;
+     align-items: center;
+     padding: 15px 20px;
+     background: #f8f9fa;
+     border-radius: 10px;
+     border: 2px solid transparent;
+     transition: all 0.3s ease;
+     cursor: pointer;
+     width: 100%;
+   }
+
+   .payment-radio.is-checked .payment-method-item {
+     background: linear-gradient(135deg, #2b2278 0%, #3d2e8a 100%);
+     color: white;
+     border-color: #2b2278;
+     box-shadow: 0 4px 15px rgba(43, 34, 120, 0.3);
+   }
+
+   .payment-method-item:hover {
+     background: #e9ecef;
+     transform: translateY(-2px);
+     box-shadow: 0 4px 12px rgba(43, 34, 120, 0.1);
+   }
+
+   .payment-radio.is-checked .payment-method-item:hover {
+     background: linear-gradient(135deg, #2b2278 0%, #3d2e8a 100%);
+   }
+
+   .payment-method-item i {
+     font-size: 20px;
+     margin-right: 15px;
+     min-width: 24px;
+     text-align: center;
+   }
+
+   .payment-method-item span {
+     font-size: 16px;
+     font-weight: 500;
+   }
+
+   .payment-footer {
+     display: flex;
+     justify-content: center;
+     gap: 20px;
+     padding: 20px 40px 30px;
+     background: #f8f9fa;
+     border-radius: 0 0 15px 15px;
+     margin: 0 -40px -30px;
+   }
+
+   .cancel-btn {
+     padding: 12px 30px;
+     border-radius: 25px;
+     font-size: 16px;
+     font-weight: 500;
+     border: 2px solid #6c757d;
+     background: white;
+     color: #6c757d;
+     transition: all 0.3s ease;
+   }
+
+   .cancel-btn:hover {
+     background: #6c757d;
+     color: white;
+     transform: translateY(-2px);
+     box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+   }
+
+   .pay-btn {
+     padding: 12px 35px;
+     border-radius: 25px;
+     font-size: 16px;
+     font-weight: 600;
+     background: linear-gradient(135deg, #2b2278 0%, #3d2e8a 100%) !important;
+     border: none;
+     color: white;
+     transition: all 0.3s ease;
+     box-shadow: 0 4px 15px rgba(43, 34, 120, 0.3);
+   }
+
+   .pay-btn:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 6px 20px rgba(43, 34, 120, 0.4);
+     background: linear-gradient(135deg, #1e1a5f 0%, #2d2070 100%) !important;
+   }
+
+   .pay-btn i {
+     margin-right: 8px;
+   }
+
+   .video-preview {
+     margin: 25px 10px 10px 10px; /* 四周都有间距 */
+     text-align: center;
+     clear: both;
+     position: relative;
+     z-index: 1;
+   }
+
+   .video-watermark-notice {
+     margin-top: 10px;
+     font-size: 12px;
+     color: #999;
+     font-style: italic;
+     padding: 0 10px; /* 左右内边距 */
+   }
+
+   /* 确保标题区域有足够空间 */
+   .about_taital {
+     margin-bottom: 15px !important;
+     clear: both;
+     padding: 0 10px; /* 标题也增加左右内边距 */
+   }
+
+   .about_taital_main {
+     position: relative;
+     overflow: visible;
+     padding: 0 5px; /* 减少容器内边距，由子元素控制 */
+     margin: 0 auto; /* 居中 */
+     max-width: 100%; /* 最大宽度 */
+   }
+
+   /* 左侧上传区域特殊样式 */
+   .col-md-6:first-child .about_taital_main {
+     padding: 0 10px 0 0; /* 左侧区域：右侧内边距，左侧无内边距（由列控制） */
+   }
+
+   /* 右侧预览区域特殊样式 */
+   .col-md-6.padding_right_0 .about_taital_main {
+     padding: 0 5px; /* 右侧区域：左右都有少量内边距 */
+   }
+
+   /* 响应式设计 */
+   @media (max-width: 768px) {
+     .payment-section,
+     .paid-download-section {
+       margin: 20px 5px; /* 移动设备上减少间距 */
+     }
+     
+     .video-preview {
+       margin: 25px 5px 10px 5px;
+     }
+     
+     .about_taital {
+       padding: 0 5px;
+     }
+
+     /* 移动设备上的列间距调整 */
+     .col-md-6:not(.padding_right_0) {
+       padding-left: 15px !important;
+       padding-right: 15px !important;
+     }
+
+     .col-md-6.padding_right_0 {
+       padding-left: 15px !important;
+       padding-right: 15px !important;
+     }
+
+     /* 移动设备上的按钮样式 */
+     .payment-btn {
+       width: 100% !important;
+       max-width: 100% !important;
+       min-width: auto !important;
+       font-size: 14px !important;
+     }
+   }
+
+   /* 中等屏幕设备优化 */
+   @media (min-width: 769px) and (max-width: 1024px) {
+     .col-md-6:not(.padding_right_0) {
+       padding-right: 20px !important; /* 中等屏幕上增加右侧间距 */
+     }
+
+     .col-md-6.padding_right_0 {
+       padding-left: 25px !important; /* 中等屏幕上调整左侧间距 */
+     }
+
+     /* 中等屏幕设备上的按钮样式 */
+     .payment-btn {
+       max-width: 240px !important;
+     }
+   }
+
+   /* 小屏幕设备优化 */
+   @media (min-width: 480px) and (max-width: 768px) {
+     .payment-btn {
+       max-width: 90% !important;
+       font-size: 15px !important;
+     }
    }
  </style>
