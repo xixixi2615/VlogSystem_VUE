@@ -1,0 +1,5 @@
+//export const BASE_URL ='http://10.122.252.183:5000'; 
+//10.21.140.30
+//export const BASE_URL = 'http://localhost:5000';
+//export const BASE_URL ='http://10.122.229.223:5000';
+export const BASE_URL ='http://10.122.211.103:5000';
