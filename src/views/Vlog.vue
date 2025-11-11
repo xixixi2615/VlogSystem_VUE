@@ -345,6 +345,20 @@
           // 任务完成或失败时停止轮询
           if (status.status === 'completed') {
             this.videoUrl = `${BASE_URL}${status.outputPath}`; // 使用后端返回的视频路径
+            
+            // 保存视频URL到本地存储
+            const userId = this.getUserId();
+            if (userId) {
+              try {
+                localStorage.setItem(`videoUrl_${userId}`, this.videoUrl);
+                localStorage.setItem(`videoTime_${userId}`, new Date().toISOString());
+                localStorage.setItem(`musicType_${userId}`, this.selectedMusicType);
+                console.log('任务完成，视频URL已保存到 localStorage:', this.videoUrl);
+              } catch (e) {
+                console.warn('保存视频URL失败:', e);
+              }
+            }
+            
             this.stopStatusPolling();
             this.loading = false;
           } else if (status.status === 'failed') {
@@ -555,8 +569,20 @@
         console.log(this.facePicInfo);
 
         // 后端返回的人脸图像URL方便预览
-        this.imageRemoteUrl = `${BASE_URL}/facepics/${userId}.jpg`; 
+        //this.imageRemoteUrl = `/facepics/${userId}.jpg`;//服务器
+        this.imageRemoteUrl = `${BASE_URL}/facepics/${userId}.jpg`;//本地
         console.log('Generated Remote Image URL:', this.imageRemoteUrl); // 添加日志，方便调试
+
+        // 清除旧的视频缓存，因为用户上传了新的人脸图片
+        this.videoUrl = '';
+        try {
+          localStorage.removeItem(`videoUrl_${userId}`);
+          localStorage.removeItem(`videoTime_${userId}`);
+          localStorage.removeItem(`musicType_${userId}`);
+          console.log('已清除旧的视频缓存');
+        } catch (e) {
+          console.warn('清除视频缓存失败:', e);
+        }
 
       } catch (error) {
         console.error('上传失败:', error);
@@ -572,6 +598,18 @@
             alert('请先上传人脸图像以生成用户信息');
             this.loading = false;
             return;
+        }
+
+        // 检查是否已有相同音乐类型的视频
+        const storedVideoUrl = localStorage.getItem(`videoUrl_${userId}`);
+        const storedMusicType = localStorage.getItem(`musicType_${userId}`);
+        if (storedVideoUrl && storedMusicType === this.selectedMusicType) {
+          const confirmRegenerate = confirm('您已经有一个相同音乐类型的视频了，是否要重新生成？');
+          if (!confirmRegenerate) {
+            // 用户选择不重新生成，直接显示已有视频
+            this.videoUrl = storedVideoUrl;
+            return;
+          }
         }
     
         const formData = new FormData();
@@ -590,7 +628,18 @@
           const result = await response.json();
           console.log('GetVideos response:', result); // 添加日志，方便调试
 
-          this.videoUrl = `${BASE_URL}/outputs/${userId}_output.mp4`; // 重置视频URL
+          this.videoUrl = `${BASE_URL}/outputs/${userId}_output.mp4`; // 重置视频URL//本地
+          //this.videoUrl = `/outputs/${userId}_output.mp4`; // 重置视频URL//服务器
+          
+          // 保存视频URL到本地存储
+          try {
+            localStorage.setItem(`videoUrl_${userId}`, this.videoUrl);
+            localStorage.setItem(`videoTime_${userId}`, new Date().toISOString());
+            localStorage.setItem(`musicType_${userId}`, this.selectedMusicType);
+            console.log('视频URL已保存到 localStorage:', this.videoUrl);
+          } catch (e) {
+            console.warn('保存视频URL失败:', e);
+          }
           
           console.log('Generated video URL:', this.videoUrl); // 添加日志，方便调试
 
@@ -671,7 +720,8 @@
         const stored = localStorage.getItem('userId');
         if (stored) {
           this.userId = stored;
-          this.imageRemoteUrl = `${BASE_URL}/facepics/${this.userId}.jpg`;
+          // this.imageRemoteUrl = `/facepics/${this.userId}.jpg`;//服务器
+          this.imageRemoteUrl = `${BASE_URL}/facepics/${this.userId}.jpg`;//本地
           console.log('mounted: 恢复 userId:', this.userId);
           console.log('mounted: 恢复 imageRemoteUrl:', this.imageRemoteUrl);
           
@@ -680,6 +730,20 @@
           if (paidStatus === 'true') {
             this.isPaid = true;
             console.log('恢复付费状态: 已付费');
+          }
+          
+          // 恢复视频URL
+          const storedVideoUrl = localStorage.getItem(`videoUrl_${this.userId}`);
+          if (storedVideoUrl) {
+            this.videoUrl = storedVideoUrl;
+            console.log('恢复视频URL:', this.videoUrl);
+            
+            // 恢复音乐类型
+            const storedMusicType = localStorage.getItem(`musicType_${this.userId}`);
+            if (storedMusicType) {
+              this.selectedMusicType = storedMusicType;
+              console.log('恢复音乐类型:', this.selectedMusicType);
+            }
           }
         }
       } catch (e) {
