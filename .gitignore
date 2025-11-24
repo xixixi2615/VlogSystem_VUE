@@ -14,10 +14,10 @@ yarn-error.log*
 .pnpm-debug.log*
 .cache/
 # 编辑器配置（可选，根据自己的编辑器加）
-.idea/       # WebStorm 等 JetBrains 编辑器
-.vscode/     # VS Code（如果团队共用配置可不上传）
-*.swp        # Vim 缓存
+.idea/    
+.vscode/ 
+*.swp
 *.swo
 # 系统自动生成的文件
-.DS_Store    # Mac 系统
-Thumbs.db    # Windows 系统
+.DS_Store
+Thumbs.db
