@@ -134,9 +134,9 @@
          <div class="container">
             <div class="location_main">
                <div class="call_text"><img src="../images/call-icon.png"></div>
-               <div class="call_text"><router-link to="/a">电话：+86 123 1234 1234</router-link></div>
+               <div class="call_text">电话：+86 123 1234 1234</div>
                <div class="call_text"><img src="../images/mail-icon.png"></div>
-               <div class="call_text"><router-link to="/a">邮箱：123 123 123@.com</router-link></div>
+               <div class="call_text">邮箱：123 123 123@.com</div>
             </div>
          </div>
       </div>

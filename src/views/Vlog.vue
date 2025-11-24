@@ -21,7 +21,7 @@
                            <router-link to="/vlog" class="nav-link">旅行vlog</router-link>
                         </li>
                         <li class="nav-item">
-                           <ruter-link to="/contact" class="nav-link">联系我们</ruter-link>
+                           <router-link to="/contact" class="nav-link">联系我们</router-link>
                         </li>
                      </ul>
                   </div>
@@ -109,13 +109,13 @@
                         {{ loading ? '旅行VLOG加载中...' : '获取旅行VLOG' }}
                      </el-button></p>
 
-                     <div v-if="taskStatus" class="status-container">
+                     <!--<div v-if="taskStatus" class="status-container">
                      <p>任务状态: {{ taskStatusText }}</p>
                      <el-progress :percentage="progress" stroke-width="6" v-if="progress > 0"></el-progress>
                      <p v-if="taskStatus === 'failed'" class="error-message">
                      任务失败，请重试
                      </p>
-                     </div>
+                     </div>-->
  
                     </p>
  
@@ -221,12 +221,6 @@
                   <el-radio label="alipay" class="payment-radio-horizontal">
                      支付宝
                   </el-radio>
-                  <el-radio label="wechat" class="payment-radio-horizontal">
-                     微信支付
-                  </el-radio>
-                  <el-radio label="card" class="payment-radio-horizontal">
-                     银行卡
-                  </el-radio>
                </el-radio-group>
             </div>
          </div>
@@ -255,9 +249,9 @@
          <div class="container">
             <div class="location_main">
                <div class="call_text"><img src="../images/call-icon.png"></div>
-               <div class="call_text"><router-link to="/a">电话：+86 123 1234 1234</router-link></div>
+               <div class="call_text">电话：+86 123 1234 1234</div>
                <div class="call_text"><img src="../images/mail-icon.png"></div>
-               <div class="call_text"><router-link to="/a">邮箱：123 123 123@.com</router-link></div>
+               <div class="call_text">邮箱：123 123 123@.com</div>
             </div>
          </div>
       </div>
@@ -302,10 +296,10 @@
 
         userId: null, // 用户ID
 
-        taskId: null, // 后端任务ID
-        taskStatus: null, // 任务状态
-        statusPolling: null, // 轮询状态ID
-        progeress: 0, // 进度(0-100)
+        // taskId: null, // 后端任务ID
+        // taskStatus: null, // 任务状态
+        // statusPolling: null, // 轮询状态ID
+        // progeress: 0, // 进度(0-100)
         
         // 付费下载相关
         isPaid: false, // 是否已付费
@@ -313,71 +307,73 @@
         paymentAmount: 29.99, // 付费金额
         selectedPaymentMethod: 'alipay', // 选择的支付方式
         paymentProcessing: false, // 支付处理中状态
+        currentOrderNo: null, // 当前订单号
+        paymentPolling: null, // 支付状态轮询定时器
       };
     },
     
   methods: {
 
-      // 启动状态轮询
-      startStatusPolling() {
-        // 清除可能存在的旧定时器
-        if (this.statusPolling) {
-          clearInterval(this.statusPolling);
-        }
+      // // 启动状态轮询
+      // startStatusPolling() {
+      //   // 清除可能存在的旧定时器
+      //   if (this.statusPolling) {
+      //     clearInterval(this.statusPolling);
+      //   }
 
-        // 每3秒查询一次状态
-        this.statusPolling = setInterval(async () => {
-          await this.checkTaskStatus();
-        }, 3000);
-      },
+      //   // 每3秒查询一次状态
+      //   this.statusPolling = setInterval(async () => {
+      //     await this.checkTaskStatus();
+      //   }, 3000);
+      // },
 
-      // 查询任务状态
-      async checkTaskStatus() {
-        if (!this.taskId) return;
+      // // 查询任务状态
+      // async checkTaskStatus() {
+      //   if (!this.taskId) return;
 
-        try {
-          const response = await fetch(`${BASE_URL}/taskStatus?taskId=${this.taskId}`);
-          const status = await response.json();
+      //   try {
+      //     const response = await fetch(`${BASE_URL}/taskStatus?taskId=${this.taskId}`);
+      //     const status = await response.json();
 
-          this.taskStatus = status.status;
-          this.progress = status.progress || 0; // 更新进度
+      //     this.taskStatus = status.status;
+      //     this.progress = status.progress || 0; // 更新进度
 
-          // 任务完成或失败时停止轮询
-          if (status.status === 'completed') {
-            this.videoUrl = `${BASE_URL}${status.outputPath}`; // 使用后端返回的视频路径
+      //     // 任务完成或失败时停止轮询
+      //     if (status.status === 'completed') {
+      //       this.videoUrl = `${BASE_URL}${status.outputPath}`; // 使用后端返回的视频路径
             
-            // 保存视频URL到本地存储
-            const userId = this.getUserId();
-            if (userId) {
-              try {
-                localStorage.setItem(`videoUrl_${userId}`, this.videoUrl);
-                localStorage.setItem(`videoTime_${userId}`, new Date().toISOString());
-                localStorage.setItem(`musicType_${userId}`, this.selectedMusicType);
-                console.log('任务完成，视频URL已保存到 localStorage:', this.videoUrl);
-              } catch (e) {
-                console.warn('保存视频URL失败:', e);
-              }
-            }
+      //       // 保存视频URL到本地存储
+      //       const userId = this.getUserId();
+      //       if (userId) {
+      //         try {
+      //           localStorage.setItem(`videoUrl_${userId}`, this.videoUrl);
+      //           localStorage.setItem(`videoTime_${userId}`, new Date().toISOString());
+      //           localStorage.setItem(`musicType_${userId}`, this.selectedMusicType);
+      //           console.log('任务完成，视频URL已保存到 localStorage:', this.videoUrl);
+      //         } catch (e) {
+      //           console.warn('保存视频URL失败:', e);
+      //         }
+      //       }
             
-            this.stopStatusPolling();
-            this.loading = false;
-          } else if (status.status === 'failed') {
-            alert(`任务失败: ${status.message || '未知错误'}`);
-            this.stopStatusPolling();
-            this.loading = false;
-          }
-        } catch (error) {
-          console.error('Error checking task status:', error);
-        }
-      },
+      //       this.stopStatusPolling();
+      //       this.loading = false;
+      //     } else if (status.status === 'failed') {
+      //       alert(`任务失败: ${status.message || '未知错误'}`);
+      //       this.stopStatusPolling();
+      //       this.loading = false;
+      //     }
+      //   } catch (error) {
+      //     console.error('Error checking task status:', error);
+      //   }
+      // },
 
-      // 停止轮询
-      stopStatusPolling() {
-        if (this.statusPolling) {
-          clearInterval(this.statusPolling);
-          this.statusPolling = null;
-        }
-      },
+      // // 停止轮询
+      // stopStatusPolling() {
+      //   if (this.statusPolling) {
+      //     clearInterval(this.statusPolling);
+      //     this.statusPolling = null;
+      //   }
+      // },
 
       //开启摄像头
       async startCamera() {
@@ -501,7 +497,8 @@
       console.log("视频上传成功");
     },
 
-    
+    // =========================== 以上功能作废 ===========================
+
     //选择人脸图像
     selectFacePic(event) {
       this.facePic = event.target.files[0];
@@ -533,16 +530,53 @@
     },
 
     generateUserId() {
-      const userId = 'user_' + Math.random().toString(36).substr(2, 9); // 生成简单随机 ID
+      // 生成新的随机 ID（每次上传新人脸都生成新ID）
+      const userId = 'user_' + Math.random().toString(36).substr(2, 9) ;
       this.userId = userId;
+      
       // ID持久化到 localStorage
       try {
         localStorage.setItem('userId', userId);
-        console.log('userId 已保存到 localStorage:', userId);
+        console.log('新 userId 已生成并保存:', userId);
       } catch (e) {
         console.warn('localStorage.setItem 失败:', e);
       }
       return this.userId;
+    },
+
+    // 清理指定用户的所有本地数据
+    clearUserLocalData(userId) {
+      if (!userId) return;
+      
+      console.log('清理用户数据:', userId);
+      
+      try {
+        // 清除视频相关
+        localStorage.removeItem(`videoUrl_${userId}`);
+        localStorage.removeItem(`videoTime_${userId}`);
+        localStorage.removeItem(`musicType_${userId}`);
+        
+        // 清除支付相关
+        localStorage.removeItem(`paid_${userId}`);
+        localStorage.removeItem(`paymentMethod_${userId}`);
+        localStorage.removeItem(`paymentTime_${userId}`);
+        localStorage.removeItem(`orderNo_${userId}`);
+        
+        // 重置组件状态
+        this.videoUrl = '';
+        this.isPaid = false;
+        this.currentOrderNo = null;
+        
+        // 停止支付轮询
+        if (this.paymentPolling) {
+          clearInterval(this.paymentPolling);
+          this.paymentPolling = null;
+        }
+        
+        console.log('用户数据清理完成');
+      } catch (e) {
+        console.warn('清理用户数据失败:', e);
+      }
     },
 
     //上传人脸图像
@@ -552,8 +586,15 @@
         return;
       }
 
-      // 获取或生成 userId
-      const userId = this.generateUserId();//getUserId();
+      // 先获取旧的 userId（如果存在），用于清理旧数据
+      const oldUserId = this.getUserId();
+      if (oldUserId) {
+        console.log('检测到旧用户数据，清理中...', oldUserId);
+        this.clearUserLocalData(oldUserId);
+      }
+
+      // 生成新的 userId
+      const userId = this.generateUserId();
       const formData = new FormData();
       formData.append('userId', userId); // 将 userId 添加到 FormData 中
       formData.append('facePic', this.facePic);
@@ -569,20 +610,9 @@
         console.log(this.facePicInfo);
 
         // 后端返回的人脸图像URL方便预览
-        //this.imageRemoteUrl = `/facepics/${userId}.jpg`;//服务器
-        this.imageRemoteUrl = `${BASE_URL}/facepics/${userId}.jpg`;//本地
+        this.imageRemoteUrl = `/facepics/${userId}.jpg`;//服务器
+        //this.imageRemoteUrl = `${BASE_URL}/facepics/${userId}.jpg`;//本地####
         console.log('Generated Remote Image URL:', this.imageRemoteUrl); // 添加日志，方便调试
-
-        // 清除旧的视频缓存，因为用户上传了新的人脸图片
-        this.videoUrl = '';
-        try {
-          localStorage.removeItem(`videoUrl_${userId}`);
-          localStorage.removeItem(`videoTime_${userId}`);
-          localStorage.removeItem(`musicType_${userId}`);
-          console.log('已清除旧的视频缓存');
-        } catch (e) {
-          console.warn('清除视频缓存失败:', e);
-        }
 
       } catch (error) {
         console.error('上传失败:', error);
@@ -600,6 +630,9 @@
             return;
         }
 
+        // 清空视频预览链接，避免显示旧视频
+        this.videoUrl = '';
+
         // 检查是否已有相同音乐类型的视频
         const storedVideoUrl = localStorage.getItem(`videoUrl_${userId}`);
         const storedMusicType = localStorage.getItem(`musicType_${userId}`);
@@ -610,6 +643,10 @@
             this.videoUrl = storedVideoUrl;
             return;
           }
+          // 如果用户选择重新生成，清除旧的localStorage数据
+          localStorage.removeItem(`videoUrl_${userId}`);
+          localStorage.removeItem(`videoTime_${userId}`);
+          localStorage.removeItem(`musicType_${userId}`);
         }
     
         const formData = new FormData();
@@ -617,8 +654,8 @@
         formData.append('userId', userId); // 传递用户ID到后端
 
         this.loading = true; // 开始加载
-        this.taskStatus = null; // 重置任务状态
-        this.progeress = 0; // 重置进度
+        // this.taskStatus = null; // 重置任务状态
+        // this.progeress = 0; // 重置进度
 
         try {
           const response = await fetch(`${BASE_URL}/getVideo`, {
@@ -628,8 +665,8 @@
           const result = await response.json();
           console.log('GetVideos response:', result); // 添加日志，方便调试
 
-          this.videoUrl = `${BASE_URL}/outputs/${userId}_output.mp4`; // 重置视频URL//本地
-          //this.videoUrl = `/outputs/${userId}_output.mp4`; // 重置视频URL//服务器
+          //this.videoUrl = `${BASE_URL}/outputs/${userId}_output.mp4`; // 重置视频URL//本地####
+          this.videoUrl = `/outputs/${userId}_output.mp4`; // 重置视频URL//服务器
           
           // 保存视频URL到本地存储
           try {
@@ -640,8 +677,6 @@
           } catch (e) {
             console.warn('保存视频URL失败:', e);
           }
-          
-          console.log('Generated video URL:', this.videoUrl); // 添加日志，方便调试
 
         } catch (error) {
           console.error('Error uploading videos:', error);
@@ -674,35 +709,144 @@
       this.paymentProcessing = true;
       
       try {
-        // 模拟支付处理时间
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        const userId = this.getUserId();
+        if (!userId) {
+          this.$message.error('请先上传人脸图像');
+          this.paymentProcessing = false;
+          return;
+        }
+
+        // 创建支付订单
+        const orderData = {
+          subject: 'VLog高清视频下载',
+          total_amount: this.paymentAmount,
+          userId: userId
+        };
+
+        const response = await fetch(`${BASE_URL}/createOrder`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderData)
+        });
+
+        const result = await response.json();
         
-        // 模拟支付成功（在实际项目中这里应该调用真实的支付接口）
-        const paymentSuccess = Math.random() > 0.1; // 90%成功率用于测试
-        
-        if (paymentSuccess) {
-          this.isPaid = true;
-          this.showPaymentDialog = false;
+        if (result.code === 200) {
+          // 保存订单号以供后续查询
+          this.currentOrderNo = result.data.out_trade_no;
+          localStorage.setItem(`orderNo_${userId}`, this.currentOrderNo);
           
-          // 保存付费状态到本地存储
-          const userId = this.getUserId();
-          try {
-            localStorage.setItem(`paid_${userId}`, 'true');
-            localStorage.setItem(`paymentMethod_${userId}`, this.selectedPaymentMethod);
-            localStorage.setItem(`paymentTime_${userId}`, new Date().toISOString());
-          } catch (e) {
-            console.warn('保存付费状态失败:', e);
-          }
+          // 打开支付宝支付页面
+          window.open(result.data.pay_url, '_blank'); // '_blank' - 新标签页/新窗口 '_self' - 当前窗口
           
-          this.$message.success('付费成功！现在可以下载高清无水印版本了');
+          // 开始轮询订单状态
+          this.startPaymentPolling();
+          
+          this.$message.info('请在新窗口完成支付，支付完成后会自动更新状态');
         } else {
-          this.$message.error('支付失败，请重试');
+          this.$message.error(result.msg || '创建订单失败');
         }
       } catch (error) {
         console.error('支付处理错误:', error);
         this.$message.error('支付处理出错，请重试');
       } finally {
         this.paymentProcessing = false;
+      }
+    },
+
+    // 开始轮询支付状态——每3秒检查一次支付状态
+    startPaymentPolling() {
+      if (this.paymentPolling) {
+        clearInterval(this.paymentPolling);
+      }
+      
+      this.paymentPolling = setInterval(async () => {
+        await this.checkPaymentStatus();
+      }, 3000); // 每3秒检查一次
+    },
+
+    // 检查支付状态
+    async checkPaymentStatus() {
+      if (!this.currentOrderNo) return;
+      
+      try {
+        const response = await fetch(`${BASE_URL}/queryOrder?out_trade_no=${this.currentOrderNo}`);
+        const result = await response.json();
+        
+        if (result.code === 200) {
+          const status = result.data.status;
+          
+          if (status === 'paid') {
+            // 支付成功
+            this.isPaid = true;
+            this.showPaymentDialog = false;
+            
+            // 保存付费状态到本地存储
+            const userId = this.getUserId();
+            try {
+              localStorage.setItem(`paid_${userId}`, 'true');
+              localStorage.setItem(`paymentMethod_${userId}`, this.selectedPaymentMethod);
+              localStorage.setItem(`paymentTime_${userId}`, new Date().toISOString());
+              localStorage.setItem(`orderNo_${userId}`, this.currentOrderNo);
+            } catch (e) {
+              console.warn('保存付费状态失败:', e);
+            }
+            
+            // 停止轮询
+            if (this.paymentPolling) {
+              clearInterval(this.paymentPolling);
+              this.paymentPolling = null;
+            }
+            
+            this.$message.success('付费成功！现在可以下载高清无水印版本了');
+          } else if (status === 'closed') {
+            // 订单关闭
+            this.$message.error('订单已关闭，请重新发起支付');
+            if (this.paymentPolling) {
+              clearInterval(this.paymentPolling);
+              this.paymentPolling = null;
+            }
+          }
+          // 如果是 waiting 状态，继续轮询
+        } else {
+          console.error('查询订单状态失败:', result.msg);
+        }
+      } catch (error) {
+        console.error('查询支付状态错误:', error);
+      }
+    },
+
+    // 检查支付回调
+    checkPaymentCallback() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const payment = urlParams.get('payment');
+      const userId = urlParams.get('userId');
+      const orderNo = urlParams.get('orderNo');
+      
+      if (payment === 'success') {
+        this.$message.success('支付成功！现在可以下载高清无水印版本了');
+        if (userId) {
+          this.userId = userId;
+          this.isPaid = true;
+          // 保存付费状态
+          try {
+            localStorage.setItem(`paid_${userId}`, 'true');
+            localStorage.setItem(`paymentTime_${userId}`, new Date().toISOString());
+            if (orderNo) {
+              localStorage.setItem(`orderNo_${userId}`, orderNo);
+            }
+          } catch (e) {
+            console.warn('保存付费状态失败:', e);
+          }
+        }
+        // 清除URL参数
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (payment === 'failed') {
+        this.$message.error('支付失败，请重试');
+        // 清除URL参数
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
     },
 
@@ -716,12 +860,15 @@
 },
     // 页面挂载时自动恢复 userId、imageRemoteUrl、videoUrl 和付费状态
     mounted() {
+      // 检查URL参数中的支付结果
+      this.checkPaymentCallback();
+      
       try {
         const stored = localStorage.getItem('userId');
         if (stored) {
           this.userId = stored;
-          // this.imageRemoteUrl = `/facepics/${this.userId}.jpg`;//服务器
-          this.imageRemoteUrl = `${BASE_URL}/facepics/${this.userId}.jpg`;//本地
+          this.imageRemoteUrl = `/facepics/${this.userId}.jpg`;//服务器
+          //this.imageRemoteUrl = `${BASE_URL}/facepics/${this.userId}.jpg`;//本地####
           console.log('mounted: 恢复 userId:', this.userId);
           console.log('mounted: 恢复 imageRemoteUrl:', this.imageRemoteUrl);
           
@@ -729,20 +876,26 @@
           const paidStatus = localStorage.getItem(`paid_${this.userId}`);
           if (paidStatus === 'true') {
             this.isPaid = true;
-            console.log('恢复付费状态: 已付费');
+            console.log('mounted：恢复 isPaid: 已付费');
+          }
+          
+          // 恢复订单号
+          const storedOrderNo = localStorage.getItem(`orderNo_${this.userId}`);
+          if (storedOrderNo) {
+            this.currentOrderNo = storedOrderNo;
           }
           
           // 恢复视频URL
           const storedVideoUrl = localStorage.getItem(`videoUrl_${this.userId}`);
           if (storedVideoUrl) {
             this.videoUrl = storedVideoUrl;
-            console.log('恢复视频URL:', this.videoUrl);
+            console.log('mounted：恢复 videoUrl:', this.videoUrl);
             
             // 恢复音乐类型
             const storedMusicType = localStorage.getItem(`musicType_${this.userId}`);
             if (storedMusicType) {
               this.selectedMusicType = storedMusicType;
-              console.log('恢复音乐类型:', this.selectedMusicType);
+              console.log('mounted：恢复 selectedMusicType:', this.selectedMusicType);
             }
           }
         }
@@ -754,19 +907,17 @@
     beforeDestroy() {
       clearInterval(this.intervalIdFrame);
       clearInterval(this.intervalIdRecord);
+      
+      // 清除支付轮询定时器
+      if (this.paymentPolling) {
+        clearInterval(this.paymentPolling);
+      }
+      
       this.stopCamera(); // 组件销毁时停止摄像头
-},
+    },
 
 computed: {
-  taskStatusText() {
-    const statusMap = {
-      'pending': '等待中',
-      'processing': '处理中',
-      'completed': '已完成',
-      'failed': '失败'
-    };
-    return statusMap[this.taskStatus] || this.taskStatus;
-  }
+    
 }
   };
  </script>
